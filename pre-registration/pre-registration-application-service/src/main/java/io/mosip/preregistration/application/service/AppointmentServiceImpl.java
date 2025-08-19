@@ -348,7 +348,8 @@ public class AppointmentServiceImpl implements AppointmentService {
 					.getResponse();
 			DocumentsMetaData documentsData = null;
 			Boolean documentExists = documentDAO.existsByPreregId(preRegistrationId);
-			if (documentExists) {
+			if (documentExists)
+			{
 				documentsData = documentService.getAllDocumentForPreId(preRegistrationId).getResponse();
 			}
 			BookingRegistrationDTO bookingData = new BookingRegistrationDTO();
