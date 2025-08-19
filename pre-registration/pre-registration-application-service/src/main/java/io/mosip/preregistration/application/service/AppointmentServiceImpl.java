@@ -346,7 +346,6 @@ public class AppointmentServiceImpl implements AppointmentService {
 			browserInfo.setBrowserName(userAgent);
 			DemographicResponseDTO demographicData = demographicService.getDemographicData(preRegistrationId)
 					.getResponse();
-			DocumentsMetaData documentsData = documentService.getAllDocumentForPreId(preRegistrationId).getResponse();
 			DocumentsMetaData documentsData = null;
 			Boolean documentExists = documentDAO.existsByPreregId(preRegistrationId);
 			if (documentExists) {
