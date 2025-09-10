@@ -436,16 +436,12 @@ public class NotificationService {
 		}
 		boolean isNameMatchFound = false;
 		if (!notificationDto.getIsBatch()) {
-			if (nameFormat != null) {
-				String[] nameKeys = nameFormat.split(",");
-				for (int i = 0; i < nameKeys.length; i++) {
-					JsonNode arrayNode = responseNode.get(nameKeys[i]);
-					for (JsonNode jsonNode : arrayNode) {
-						if (notificationDto.getName().trim().equals(jsonNode.get("value").asText().trim())) {
-							isNameMatchFound = true;
-							break;
-						}
-					}
+			List<KeyValuePairDto<String, String>> langaueNamePairsfullName = new ArrayList<KeyValuePairDto<String, String>>();
+			langaueNamePairsfullName = getLanguageNamePairs(responseNode);
+			for (KeyValuePairDto<String, String> langaueNamePairFullName : langaueNamePairsfullName) {
+				if (notificationDto.getName().trim().equals(langaueNamePairFullName.getValue().trim())) {
+					isNameMatchFound = true;
+					break;
 				}
 
 			}
