@@ -266,18 +266,12 @@ public class NotificationService {
 			responseNode = responseNode.get(identity);
 			
 			JsonNode arrayNode = responseNode.get(fullName);
-			List<KeyValuePairDto<String,String>> langaueNamePairs = new ArrayList<KeyValuePairDto<String,String>>();
-			KeyValuePairDto langaueNamePair = null;
-			if (arrayNode.isArray()) {
-				for (JsonNode jsonNode : arrayNode) {
-					langaueNamePair = new KeyValuePairDto();
-					langaueNamePair.setKey(jsonNode.get("language").asText().trim());
-					langaueNamePair.setValue(jsonNode.get("value").asText().trim());
-					langaueNamePairs.add(langaueNamePair);
-				}
-			}
+			List<KeyValuePairDto<String,String>> languageNamePairsfullName = new ArrayList<KeyValuePairDto<String,String>>();
 
-			notificationDto.setFullName(langaueNamePairs);
+			languageNamePairsfullName = getLanguageNamePairs(responseNode);
+
+
+			notificationDto.setFullName(languageNamePairsfullName);
 			if (responseNode.get(email) != null) {
 				String emailId = responseNode.get(email).asText();
 				notificationDto.setEmailID(emailId);
@@ -301,6 +295,52 @@ public class NotificationService {
 			throw new RestCallException(NotificationErrorCodes.PRG_PAM_ACK_011.getCode(),
 					NotificationErrorMessages.DEMOGRAPHIC_CALL_FAILED.getMessage());
 		}
+	}
+
+	private List<KeyValuePairDto<String, String>> getLanguageNamePairs(JsonNode responseNode) {
+
+		List<KeyValuePairDto<String, String>> languageNamePairs = new ArrayList<KeyValuePairDto<String, String>>();
+		List<KeyValuePairDto<String, String>> languageNamePairsfullName = new ArrayList<KeyValuePairDto<String, String>>();
+		KeyValuePairDto<String, String> languageNamePair = null;
+
+		for(String name : fullName.split(",")) {
+			JsonNode arrayNodeComma = responseNode.get(name);
+			if (arrayNodeComma != null && !arrayNodeComma.isEmpty()) {
+				if (languageNamePairsfullName.isEmpty()) {
+					if (!arrayNodeComma.isEmpty() || arrayNodeComma != null && arrayNodeComma.isArray()) {
+						for (JsonNode jsonNode : arrayNodeComma) {
+							languageNamePair = new KeyValuePairDto();
+							languageNamePair.setKey(jsonNode.get("language").asText().trim());
+							languageNamePair.setValue(jsonNode.get("value").asText().trim() + " ");
+							languageNamePairs.add(languageNamePair);
+						}
+					}
+					for (KeyValuePairDto<String, String> keyValuePair : languageNamePairs) {
+						languageNamePairsfullName.add(keyValuePair);
+					}
+					languageNamePairs.clear();
+
+				} else {
+					for (KeyValuePairDto<String, String> langaueNamePairFullName : languageNamePairsfullName) {
+						for (JsonNode jsonNode : arrayNodeComma) {
+							if (langaueNamePairFullName.getKey().equals(jsonNode.get("language").asText().trim())) {
+								langaueNamePairFullName.setValue(langaueNamePairFullName.getValue()
+										.concat(jsonNode.get("value").asText().trim() + " "));
+								langaueNamePairFullName.setKey(jsonNode.get("language").asText().trim());
+								languageNamePairs.add(langaueNamePairFullName);
+							}
+						}
+
+					}
+					languageNamePairsfullName.clear();
+					for (KeyValuePairDto<String, String> keyValuePair : languageNamePairs) {
+						languageNamePairsfullName.add(keyValuePair);
+					}
+					languageNamePairs.clear();
+				}
+			}
+		}
+		return languageNamePairsfullName;
 	}
 
 	/**
